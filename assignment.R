@@ -9,7 +9,7 @@ library(factoextra)
 # сохраните как символьный вектор
 top_speakers <- friends |> 
   count(speaker, sort = TRUE) |>
-  slice(1:6) |>
+  head(6) |>
   pull(speaker)
 
 # 2. отфильтруйте топ-спикеров, 
@@ -59,12 +59,9 @@ pca_fit <- prcomp(friends_tf_wide, center = TRUE, scale = TRUE)
 
 q <- fviz_pca_biplot(pca_fit,
                      geom = c("text"),
+                     col.var = "black",
                      habillage = as.factor(km.out$cluster),
-                     col.var = "lightblue",
-                     select.var = list(cos2 = 20))
-                     
-
-                      
-
-
-
+                     select.var = list(cos2 = 20),
+                     alpha.var = 0.3,
+                     ggtheme = theme_minimal()) +
+  theme(legend.position = "none")
