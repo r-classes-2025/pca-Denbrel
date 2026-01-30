@@ -19,7 +19,7 @@ top_speakers <- friends |>
 friends_tokens <- friends |> 
   filter(speaker %in% top_speakers) |>
   unnest_tokens(word, text) |>
-  filter(!grepl("\\d", word)) |>
+  filter(!str_detect(word, "\\d")) |>
   select(speaker, word)
 
 # 3. отберите по 500 самых частотных слов для каждого персонажа
@@ -36,12 +36,7 @@ friends_tf <- friends_tokens |>
 # 4. преобразуйте в широкий формат; 
 # столбец c именем спикера превратите в имя ряда, используя подходящую функцию 
 friends_tf_wide <- friends_tf |>
-  pivot_wider(names_from = word, values_from = tf, values_fill = 0)
-
-word_cols <- sort(setdiff(colnames(friends_tf_wide), "speaker"))
-
-friends_tf_wide <- friends_tf_wide |>
-  select(speaker, all_of(word_cols)) |>
+  pivot_wider(names_from = word, values_from = tf, values_fill = 0) |> 
   column_to_rownames(var = "speaker")
 
 # 5. установите зерно 123
