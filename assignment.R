@@ -27,16 +27,16 @@ friends_tokens <- friends |>
 friends_tf <- friends_tokens |>
   count(speaker, word) |>
   group_by(speaker) |>
+  slice_max(n, n = 500, with_ties = FALSE) |>
   mutate(tf = n / sum(n)) |>
-  arrange(desc(n), word) |>
-  slice(1:500) |>
-  select(speaker, word, tf) |>
-  ungroup()
+  ungroup() |> 
+  select(speaker, word, tf)
+  
 
 # 4. преобразуйте в широкий формат; 
 # столбец c именем спикера превратите в имя ряда, используя подходящую функцию 
 friends_tf_wide <- friends_tf |>
-  pivot_wider(names_from = word, values_from = tf, values_fill = 0, names_sort = TRUE) |> 
+  pivot_wider(names_from = word, values_from = tf, values_fill = 0) |> 
   column_to_rownames(var = "speaker")
 
 # 5. установите зерно 123
@@ -49,7 +49,7 @@ km.out <- kmeans(scale(friends_tf_wide), centers = 3, nstart = 20)
 
 # 6. примените к матрице метод главных компонент (prcomp)
 # центрируйте и стандартизируйте, использовав аргументы функции
-pca_fit <- prcomp(friends_tf_wide, center = TRUE, scale. = TRUE)
+pca_fit <- prcomp(friends_tf_wide, center = TRUE, scale = TRUE)
 
 # 7. Покажите наблюдения и переменные вместе (биплот)
 # в качестве геома используйте текст (=имя персонажа)
@@ -58,7 +58,13 @@ pca_fit <- prcomp(friends_tf_wide, center = TRUE, scale. = TRUE)
 # сохраните график как переменную q
 
 q <- fviz_pca_biplot(pca_fit,
-                     geom.ind = "text",
-                     habillage = km.out$cluster,
+                     geom = c("text"),
+                     habillage = as.factor(km.out$cluster),
+                     col.var = "lightblue",
                      select.var = list(cos2 = 20))
+                     
+
+                      
+
+
 
